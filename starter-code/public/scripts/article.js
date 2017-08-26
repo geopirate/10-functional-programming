@@ -42,6 +42,9 @@ var app = app || {};
     // is the transformation of one collection into another. Remember that we can set variables equal to the result
     // of functions. So if we set a variable equal to the result of a .map, it will be our transformed array.
     // There is no need to push to anything.
+    Article.all = rawData.map(function(Article) {
+      return Article.ele;
+    });
 
     /* OLD forEach():
   rawData.forEach(function(ele) {
@@ -61,15 +64,28 @@ var app = app || {};
       )
   };
 
-  // TODO: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
+  // DONE: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
   Article.numWordsAll = () => {
-    return Article.all.map().reduce()
+    return Article.all
+      .map(function(singleArticle) {
+        return singleArticle.body
+      })
+      .reduce(function(count, words) {
+        return words.split(' ').length;
+      }, 0)
   };
 
   // TODO: Chain together a `map` and a `reduce` call to produce an array of unique author names. You will
   // probably need to use the optional accumulator argument in your reduce call.
   Article.allAuthors = () => {
-    return Article.all.map().reduce();
+    return Article.all.map(function(authorNames) {
+      return authorNames.author;
+    }).reduce(function(allAuthors, authorName){
+      if(!allAuthors.includes(authorName)){
+        allAuthors.push(authorName);
+      }
+      return allAuthors;
+    },[])
   };
 
   Article.numWordsByAuthor = () => {
@@ -87,54 +103,54 @@ var app = app || {};
 
   Article.truncateTable = callback => {
     $.ajax({
-      url: '/articles',
-      method: 'DELETE',
-    })
-    .then(console.log) // REVIEW: Check out this clean syntax for just passing 'assumed' data into a named function!
-    // The reason we can do this has to do with the way Promise.prototype.then works. It's a little
-    // outside the scope of 301 material, but feel free to research!
-    .then(callback);
+        url: '/articles',
+        method: 'DELETE',
+      })
+      .then(console.log) // REVIEW: Check out this clean syntax for just passing 'assumed' data into a named function!
+      // The reason we can do this has to do with the way Promise.prototype.then works. It's a little
+      // outside the scope of 301 material, but feel free to research!
+      .then(callback);
   };
 
   Article.prototype.insertRecord = function(callback) {
     // REVIEW: Why can't we use an arrow function here for .insertRecord()??
     $.post('/articles', {
-      author: this.author,
-      authorUrl: this.authorUrl,
-      body: this.body,
-      category: this.category,
-      publishedOn: this.publishedOn,
-      title: this.title
-    })
-    .then(console.log)
-    .then(callback);
-  };
-
-  Article.prototype.deleteRecord = function(callback) {
-    $.ajax({
-      url: `/articles/${this.article_id}`,
-      method: 'DELETE'
-    })
-    .then(console.log)
-    .then(callback);
-  };
-
-  Article.prototype.updateRecord = function(callback) {
-    $.ajax({
-      url: `/articles/${this.article_id}`,
-      method: 'PUT',
-      data: {
         author: this.author,
         authorUrl: this.authorUrl,
         body: this.body,
         category: this.category,
         publishedOn: this.publishedOn,
-        title: this.title,
-        author_id: this.author_id
-      }
-    })
+        title: this.title
+      })
+      .then(console.log)
+      .then(callback);
+  };
+
+  Article.prototype.deleteRecord = function(callback) {
+    $.ajax({
+        url: `/articles/${this.article_id}`,
+        method: 'DELETE'
+      })
+      .then(console.log)
+      .then(callback);
+  };
+
+  Article.prototype.updateRecord = function(callback) {
+    $.ajax({
+        url: `/articles/${this.article_id}`,
+        method: 'PUT',
+        data: {
+          author: this.author,
+          authorUrl: this.authorUrl,
+          body: this.body,
+          category: this.category,
+          publishedOn: this.publishedOn,
+          title: this.title,
+          author_id: this.author_id
+        }
+      })
       .then(console.log)
       .then(callback);
   };
   module.Article = Article;
-})
+})(window)
