@@ -7,7 +7,9 @@ var app = app || {};
 // Give the IIFE a parameter called 'module'.
 // At the very end of the code, but still inside the IIFE, attach the 'Article' object to 'module'.
 // Where the IIFE is invoked, pass in the global 'app' object that is defined above.
-(function (module) {
+
+(function(module) {
+  
   function Article(rawDataObj) {
     /* REVIEW: In lab 8, we explored a lot of new functionality going on here. Let's re-examine
     the concept of context.
@@ -43,7 +45,7 @@ var app = app || {};
     // of functions. So if we set a variable equal to the result of a .map, it will be our transformed array.
     // There is no need to push to anything.
     Article.all = rows.map(ele => new Article(ele));
-    //Article.all = rawData.map(function(Article) { return Article.ele; });
+
   };
 
   Article.fetchAll = callback => {
@@ -58,13 +60,7 @@ var app = app || {};
 
   // DONE: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
   Article.numWordsAll = () => {
-    return Article.all
-      .map(function(singleArticle) {
-        return singleArticle.body
-      })
-      .reduce(function(count, words) {
-        return words.split(' ').length;
-      }, 0)
+    return Article.all.map(singleArticle => singleArticle.body.split(' ').length).reduce((wordTotal, currentCount) => wordTotal+ currentCount);
   };
 
   // DONE: Chain together a `map` and a `reduce` call to produce an array of unique author names. You will
@@ -84,6 +80,12 @@ var app = app || {};
 
   Article.numWordsByAuthor = () => {
     return Article.allAuthors().map(author => {
+      return {author: author, words: Article.all.filter(function(val){
+        return val.author === author
+      }).reduce(function(authorWords, authorCurrent){
+        return authorWords + authorCurrent.body.split(' ').length
+      },0)
+      }})
       // TODO: Transform each author string into an object with properties for
       // the author's name, as well as the total number of words across all articles
       // written by the specified author.
@@ -91,9 +93,8 @@ var app = app || {};
       // The first property should be pretty straightforward, but you will need to chain
       // some combination of filter, map, and reduce to get the value for the second
       // property.
-      return author;
+
       // pretty sure this doesn't work!
-    })
   };
 
   Article.truncateTable = callback => {
